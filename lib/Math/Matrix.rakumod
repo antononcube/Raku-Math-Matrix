@@ -530,12 +530,13 @@ method adjugated( Math::Matrix:D: --> Math::Matrix:D) {
 
 method inverted(Math::Matrix:D: --> Math::Matrix:D) {
     fail "Number of columns has to be same as number of rows" unless self.is-square;
-    fail "Matrix is not invertible, or singular because defect (determinant = 0)" if self.determinant == 0;
+    #fail "Matrix is not invertible, or singular because defect (determinant = 0)" if self.determinant == 0;
     my @clone = self!clone-cells();
     my @inverted = Math::Matrix::ArrayOfArray::new-identity( $!row-count );
     for ^$!row-count -> $c {
         my $swap_row_nr = $c;       # make sure that diagonal element != 0, later == 1
-        $swap_row_nr++ while @clone[$swap_row_nr][$c] == 0;
+        $swap_row_nr++ while $swap_row_nr < $!row-count && @clone[$swap_row_nr][$c] == 0;
+        fail "Matrix is not invertible, or singular because defect (determinant = 0)" if $swap_row_nr >= $!row-count;
         (@clone[$c], @clone[$swap_row_nr])       = (@clone[$swap_row_nr], @clone[$c]);
         (@inverted[$c], @inverted[$swap_row_nr]) = (@inverted[$swap_row_nr], @inverted[$c]);
         @inverted[$c] =  @inverted[$c] >>/>>  @clone[$c][$c];
